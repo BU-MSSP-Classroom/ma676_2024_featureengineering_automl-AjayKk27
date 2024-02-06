@@ -2,7 +2,9 @@
 title: "Auto ML vs Feature Engineering"
 author: "Masanao Yajima"
 date: "2023-01-05"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{css,echo=FALSE}
@@ -279,14 +281,14 @@ For highly correlated variables you might select variables so that correlation d
 # Correlation matrix
 numeric_vars = ames_raw %>% select(where(is.numeric)) 
 ggcorr(numeric_vars,hjust = 1)
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
+#if (!require("BiocManager", quietly = TRUE))
+ #   install.packages("BiocManager")
 ```
 
 Alternatively, you could compress the correlated variable using dimension reduction.  However, it's no free lunch since you need to do all the scaling and missing data processing before you can apply PCA and you need to decide how many components to include.  pcaMethods package offers a way to fit a model even in the presence of missing data.
 
 ```{r}
-BiocManager::install("pcaMethods")
+#BiocManager::install("pcaMethods")
 library(pcaMethods)
 
 pca_numeric<-pcaMethods::pca(numeric_vars,nPcs=20,scale="uv")
@@ -329,7 +331,8 @@ You will use the framework of tidymodel workflow, which will run these transform
 Since you've worked on it in MA679 please copy and paste your best model here.  
 ```{r,echo=TRUE}
 ##
-##
+ames_fit<- lm(log(SalePrice)~`Overall Qual` +Neighborhood+`Gr Liv Area`, data=ames_raw_2008)
+summary(ames_fit)
 ```
 
 Your answer:
@@ -341,10 +344,15 @@ Please write your answer in full sentences.
 ~~~
 
 Please perform feature engineering on the Ames housing data that you think will help with the prediction.
+So the first thing to do, I suppose, would be to deal with the neighborhood data. There are a lot of neighborhoods in the indicator variable and condensing this might make some sense. I'll start by doing some analysis on how often each neighborhood appears in the dataset. 
 
 ```{r,echo=TRUE}
 ##
 ##
+neighborhood_Freq<-ames_raw |> group_by(Neighborhood) |> count(Neighborhood)
+ggplot(data= neighborhood_Freq, aes(x=Neighborhood, y=n))+
+  geom_bar(stat='identity')+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
 ```
 
 Your answer:
